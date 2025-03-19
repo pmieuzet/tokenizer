@@ -1,14 +1,8 @@
 # Creation du smart contract 
-
-## Règles:
-- Il y a une offre totale fixe de jetons qui ne peuvent pas être changés.
-- L'ensemble de la fourniture est affecté à l'adresse qui déploie le contrat.
-- N'importe qui peut recevoir des jetons.
-- Toute personne avec au moins un jeton peut transférer des jetons.
-- Le jeton n'est pas divisible. Vous pouvez transférer 1, 2, 3 ou 37 jetons mais pas 2,5.
-
 _TUTORIAL:_
 https://hardhat.org/tutorial/writing-and-compiling-contracts
+
+https://ethereum.org/en/developers/docs/smart-contracts/composability/
 
 ## Caractéristiques du token ERC-20
 ### Les fonctions :
