@@ -25,11 +25,10 @@ contract Token {
         owner = msg.sender;
     }
 
-    /**
+    /**  
      * A function to transfer tokens.
-     *
-     * The `external` modifier makes a function *only* callable from *outside* the contract.
      */
+    // Devient public si je fais une fonction pour redistribuer les tokens
     function transfer(address receiver, uint256 amount) external {
         // Check if the transaction sender has enough tokens.
         // If `require`'s first argument evaluates to `false`, the transaction will revert.
@@ -46,7 +45,7 @@ contract Token {
     /**
      * A function to create an amount of new tokens and sends them to an adress.
      */
-    function mint(address receiver) public {
+    function mint(address receiver, uint256 amount) public {
 
         // Only the contract owner can call this function
         require(msg.sender == owner, "You are not the owner.");
