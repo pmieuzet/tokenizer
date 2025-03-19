@@ -1,21 +1,14 @@
-# Idee du projet
+# Creation du smart contract 
 
-# Choix du nom du token
+## Règles:
+- Il y a une offre totale fixe de jetons qui ne peuvent pas être changés.
+- L'ensemble de la fourniture est affecté à l'adresse qui déploie le contrat.
+- N'importe qui peut recevoir des jetons.
+- Toute personne avec au moins un jeton peut transférer des jetons.
+- Le jeton n'est pas divisible. Vous pouvez transférer 1, 2, 3 ou 37 jetons mais pas 2,5.
 
-## EquiServ42 ou EquiCom42 ou Equilis42
-
-EquiServ42 : Contraction de 'Equity' et 'Services'. 
-EquiCom24 : Contraction de 'Equity' et 'Community'
-Equilis42 :  Pour évoquer une communauté basée sur l'equité.
-Car l'objectif de mon token serait de tendre à réduire les inégalités par rapport à l'accès à tout type de services et de promouvoir une économie collaborative.
-
-# Choix de la blockchain
-
-## Ethereum
-
-# Choix du framework
-
-## Hardhat
+_TUTORIAL:_
+https://hardhat.org/tutorial/writing-and-compiling-contracts
 
 ## Caractéristiques du token ERC-20
 ### Les fonctions :
