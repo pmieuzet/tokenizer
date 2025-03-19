@@ -1,18 +1,27 @@
-# Choix du nom du token
+# Tokenizer
 
-## EquiServ42 ou EquiCom42 ou Equilis42
+## Community42 - COMM42
 
-EquiServ42 : Contraction de 'Equity' et 'Services'. 
-EquiCom24 : Contraction de 'Equity' et 'Community'
-Equilis42 :  Pour évoquer une communauté basée sur l'equité.
-Car l'objectif de mon token serait de tendre à réduire les inégalités par rapport à l'accès à tout type de services et de promouvoir une économie collaborative.
+A token for the social equity through decentralized service exchange.
 
-# Choix de la blockchain
+- __Name__ : Community42
+- __Symbol__ : COMM42
+- __Contract address__ : 0xf3a9C5D8c8eE639FaEB0f144f9B9486DE9a8479A
+- __Multisig address__ : 0x17bFE2F88D55e5D7e56bdeF7B628625605D0EecC
+- __Blockchain__ : Ethereum
+- __SmartContract Language__ : Solidity
+- __Framework__ : Hardhat
+- __Standard token__ : ERC-20
 
-## Ethereum
+See [whitepaper in french](./documentation/whitepaper.fr.md) or [whitepaper in english](./documentation/whitepaper.md) and [technical specifications](./documentation/technical_specifications.md)
 
-# Choix du framework
+## Deployment 
 
-## Hardhat
+__Prérequis__:
+- Have an [Etherscan](https://etherscan.io/) account
+- Have an [Alchemy](https://www.alchemy.com/) account
+- Have a [MetaMask](https://metamask.io/) wallet with at least two accounts that hold a small amount of [Sepolia ETH](https://cloud.google.com/application/web3/faucet/ethereum/sepolia)
+
+See [user guide in french](./documentation/guide_utilisateur.md) or [user guide in english](./documentation/user_guide.md)
 
 
