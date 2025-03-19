@@ -4,6 +4,8 @@ https://hardhat.org/tutorial/writing-and-compiling-contracts
 
 https://ethereum.org/en/developers/docs/smart-contracts/composability/
 
+Docu Solidity : https://docs.soliditylang.org/en/latest/
+
 ## Caractéristiques du token ERC-20
 ### Les fonctions :
 
