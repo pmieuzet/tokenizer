@@ -25,20 +25,17 @@ contract Token {
         owner = msg.sender;
     }
 
-    /**  
+    /**
      * A function to transfer tokens.
      */
     // Devient public si je fais une fonction pour redistribuer les tokens
     function transfer(address receiver, uint256 amount) external {
         // Check if the transaction sender has enough tokens.
-        // If `require`'s first argument evaluates to `false`, the transaction will revert.
         require(balances[msg.sender] >= amount, "Not enough tokens");
 
-        // Transfer the amount.
         balances[msg.sender] -= amount;
         balances[receiver] += amount;
 
-        // Notify off-chain applications of the transfer.
         emit Transfer(msg.sender, receiver, amount);
     }
 
@@ -46,7 +43,6 @@ contract Token {
      * A function to create an amount of new tokens and sends them to an adress.
      */
     function mint(address receiver, uint256 amount) public {
-
         // Only the contract owner can call this function
         require(msg.sender == owner, "You are not the owner.");
 
@@ -54,12 +50,11 @@ contract Token {
         totalSupply += SUPPLY_NEW_USER;
     }
 
-
     /**
      * Read only function to retrieve the token balance of a given account.
      *
      * The `view` modifier indicates that it doesn't modify the contract's
-     * state, which allows us to call it without executing a transaction. 
+     * state, which allows us to call it without executing a transaction.
      */
     function balanceOf(address account) external view returns (uint256) {
         return balances[account];
