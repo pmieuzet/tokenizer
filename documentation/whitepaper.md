@@ -34,8 +34,7 @@ Un utilisateur peut dépenser ses jetons pour participer ou bénéficier des ser
 - Prévoir un lexique?
 - Proof-of-Work: Présenter la nature des algorithmes de consensus utilisés.
 
-Blockchain choisie : Ethereum. 
-Pourquoi? 
+Pour ce projet, j'ai décidé d'utiliser le standard ERC-20 pour créer un token fongible sécurisé sur la blockchain Ethereum.
 
 4. Le roadmap
 - Mise en place d'un calendrier détaillé.
