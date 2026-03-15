@@ -8,6 +8,8 @@ async function main() {
     await token.waitForDeployment();
 
     console.log("Community42 deployed to:", token.target);
+
+    fs.writeFileSync("TOKEN_ADDR=", JSON.stringify(token.target))
 }
 
 main()

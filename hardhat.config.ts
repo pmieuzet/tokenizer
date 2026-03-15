@@ -14,7 +14,10 @@ const config: HardhatUserConfig = {
   networks: {
     sepolia: {
       url: process.env.SEPOLIA_URL,
-      accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
+      accounts: accounts: [
+        process.env.PRIVATE_KEY!, 
+        process.env.PRIVATE_KEY_MULTISIG ?? '', 
+      ]
     }
   },
   etherscan: {

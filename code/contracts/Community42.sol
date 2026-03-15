@@ -4,19 +4,17 @@ pragma solidity ^0.8.28;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
+import {Community42Errors} from "../interfaces/Community42Errors.sol";
 
 /**
  * @title Community42
  * @author pmieuzet
  * @notice This contract implements an ERC-20 token named "Community42" with the symbol "COMM42".
- * This implementation includes the standard ERC-20 functions and events, as well as custom errors for better error handling.
- * The token has a name, symbol, and a fixed number of decimals.
- * The total supply of tokens can be increased by the owner through the `mint` function.
+ * @dev This implementation includes the standard ERC-20 functions and events.
  */
-contract Community42 is IERC20, IERC20Errors, Ownable {
+contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
     /**
      * @dev Struct representing an event in the community.
-     * Each event has an organizer, a list of participants, a maximum number of participants, and a price for attending the event.
      */
     struct Event {
         address organizer;
@@ -39,7 +37,7 @@ contract Community42 is IERC20, IERC20Errors, Ownable {
      */
     uint256 private _decimals = 0;
     /**
-     * @dev The total number of tokens in existence.
+     * @dev The total number of tokens in existence. This value is updated whenever new tokens are minted.
      */
     uint256 private _totalSupply = 0;
 
@@ -58,7 +56,12 @@ contract Community42 is IERC20, IERC20Errors, Ownable {
     mapping(address => mapping(address => uint256)) private _allowances;
 
     /**
-     * @dev Mapping from event names to their corresponding Event struct, which contains details about the event such as organizer, participants, maximum number of participants, and price.
+     * @dev Mapping to track whether an address has already signed up and received the signup bonus.
+     */
+    mapping(address => bool) private _hasSignedUp;
+
+    /**
+     * @dev Mapping from event names to their corresponding Event struct, which contains details about the event.
      */
     mapping(bytes32 => Event) private _events;
 
@@ -131,13 +134,17 @@ contract Community42 is IERC20, IERC20Errors, Ownable {
         if (to == address(0)) {
             revert ERC20InvalidReceiver(address(0));
         }
+
         uint256 balance = _balances[from];
         if (balance < value) {
             revert ERC20InsufficientBalance(from, balance, value);
         }
+
+        // Perform the token transfer by updating the balances of the sender and recipient.
         _balances[from] -= value;
         _balances[to] += value;
 
+        // Emit a Transfer event to signal that the transfer has occurred, including the sender, recipient, and amount transferred.
         emit Transfer(from, to, value);
         return true;
     }
@@ -188,11 +195,14 @@ contract Community42 is IERC20, IERC20Errors, Ownable {
             revert ERC20InsufficientBalance(from, currentBalance, value);
         }
 
+        // Perform the token transfer by updating the balances of `from` and `to`.
         _balances[from] -= value;
         _balances[to] += value;
 
+        // Update the allowance of the caller for `from`'s tokens by deducting the transferred amount.
         _allowances[from][spender] -= value;
 
+        // Emit a Transfer event to signal that the transfer has occurred, including the sender, recipient, and amount transferred.
         emit Transfer(from, to, value);
         return true;
     }
@@ -217,6 +227,12 @@ contract Community42 is IERC20, IERC20Errors, Ownable {
         address owner,
         address spender
     ) public view override returns (uint256) {
+        if (owner == address(0)) {
+            revert ERC20InvalidOwner(address(0));
+        } else if (spender == address(0)) {
+            revert ERC20InvalidSpender(address(0));
+        }
+
         return _allowances[owner][spender];
     }
 
@@ -245,8 +261,10 @@ contract Community42 is IERC20, IERC20Errors, Ownable {
         }
 
         address owner = msg.sender;
+        // Set the allowance of `spender` over the caller's tokens to the specified `value`.
         _allowances[owner][spender] = value;
 
+        // Emit an Approval event to signal that the approval has occurred, including the owner, spender, and amount approved.
         emit Approval(owner, spender, value);
         return true;
     }
@@ -271,10 +289,16 @@ contract Community42 is IERC20, IERC20Errors, Ownable {
     function mint(
         address to,
         uint256 amount
-    ) internal onlyOwner returns (bool) {
+    ) external onlyOwner returns (bool) {
+        if (to == address(0)) {
+            revert ERC20InvalidReceiver(address(0));
+        }
+
+        // Perform the minting by increasing the total supply and updating the balance of the recipient address.
         _totalSupply += amount;
         _balances[to] += amount;
 
+        // Emit a Transfer event to signal that the minting has occurred, including the zero address as the sender, the recipient address, and the amount minted.
         emit Transfer(address(0), to, amount);
         return true;
     }
@@ -285,24 +309,37 @@ contract Community42 is IERC20, IERC20Errors, Ownable {
      * Emits a {Transfer} event with `from` set to the zero address.
      *
      * Requirements:
-     * - `to` cannot be the zero address.
-     * - the caller must be the owner of the contract.
+     * - The caller must not have already signed up and received the signup bonus.
      *
      * Reverts with custom errors:
-     * - `ERC20InvalidReceiver` if `to` is the zero address.
+     * - `AlreadySignedUp` if the caller has already signed up and received the signup bonus.
      *
-     * @param to The address of the new user to receive the signup bonus tokens.
-     *eventKey
      * @return A boolean value indicating whether the operation succeeded.
      */
     function signup() external returns (bool) {
-        return mint(msg.sender, SIGNUP_BONUS);
+        address to = msg.sender;
+        if (_hasSignedUp[to]) {
+            revert AlreadySignedUp(to);
+        }
+
+        // Mark the caller as having signed up to prevent them from receiving the signup bonus multiple times.
+        _hasSignedUp[to] = true;
+
+        // Perform the signup bonus minting by increasing the total supply and updating the balance of the caller's address with the predefined SIGNUP_BONUS amount.
+        _totalSupply += SIGNUP_BONUS;
+        _balances[to] += SIGNUP_BONUS;
+
+        // Emit a Transfer event to signal that the signup bonus minting has occurred, including the zero address as the sender, the caller's address as the recipient, and the amount of the signup bonus.
+        emit Transfer(address(0), to, SIGNUP_BONUS);
+        return true;
     }
 
     /**
      * @dev Creates a new event with the specified parameters.
-     * The caller of this function will be set as the organizer of the event. The event is identified by a unique `eventKey`,
-     * and it has a maximum number of participants and a price for attending the event.
+     * The caller of this function will be set as the organizer of the event. The event is identified by a unique `eventKey`, and it has a maximum number of participants and a price for attending the event.
+     *
+     * Reverts with custom errors:
+     * - `EventAlreadyExists` if an event with the same `eventKey` already exists.
      *
      * @param eventKey The unique identifier for the event to be created. It should be a non-empty string that distinguishes this event from others.
      * @param maxParticipants The maximum number of participants allowed to join the event. This should be a positive integer that limits the number of attendees for the event.
@@ -318,10 +355,11 @@ contract Community42 is IERC20, IERC20Errors, Ownable {
             bytes(eventKey).length == 0 ||
             _events[eventKey].organizer != address(0)
         ) {
-            revert("Event with the same key already exists");
+            revert EventAlreadyExists(bytes32(eventKey));
         }
 
-        _events[eventKey] = Event({
+        // Create a new event by initializing the Event struct with the organizer's address, an empty list of participants, the specified maximum number of participants, and the price for attending the event. The event is stored in the _events mapping using the provided eventKey as the key.
+        _events[bytes32(eventKey)] = Event({
             organizer: msg.sender,
             participants: new address[](0),
             maxParticipants: maxParticipants,
@@ -332,22 +370,33 @@ contract Community42 is IERC20, IERC20Errors, Ownable {
     /**
      * @dev Allows a user to participate in an existing event by paying the required price in tokens.
      *
+     * Reverts with custom errors:
+     * - `EventDoesNotExist` if the event with the specified `eventKey` does not exist (i.e., there is no organizer associated with the event).
+     * - `EventFull` if the number of participants for the event has already reached the maximum allowed (`maxParticipants`).
+     * - `InsufficientBalance` if the user's balance is less than the price required to participate in the event.
+     *
      * @param eventKey The unique identifier for the event that the user wants to participate in.
      */
     function participateInEvent(string memory eventKey) external {
         Event storage eventInfo = _events[eventKey];
         if (eventInfo.organizer == address(0)) {
-            revert("Event does not exist");
+            revert EventDoesNotExist(bytes32(eventKey));
         } else if (eventInfo.participants.length >= eventInfo.maxParticipants) {
-            revert("Event is full");
+            revert EventFull(bytes32(eventKey));
         } else if (_balances[msg.sender] < eventInfo.price) {
-            revert("Insufficient balance to participate in the event");
+            revert InsufficientBalance(
+                msg.sender,
+                _balances[msg.sender],
+                eventInfo.price
+            );
         }
 
+        // Transfer the required price from the participant to the event organizer. This is done by calling the transfer function, which will update the balances accordingly and emit a Transfer event.
         if (eventInfo.price != 0) {
             transfer(eventInfo.organizer, eventInfo.price);
         }
 
+        // The participant's address is added to the list of participants for the event.
         eventInfo.participants.push(msg.sender);
     }
 }
