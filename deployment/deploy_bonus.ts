@@ -11,7 +11,7 @@ async function main() {
     await multisig.waitForDeployment();
     const multisigAddress = await multisig.getAddress();
 
-    const token = await hre.ethers.getContractAt("Community42", TOKEN_ADDRESS);
+    const token = await hre.ethers.getContractAt("Community42", TOKEN_ADDR);
 
     const tx = await token.transferOwnership(multisigAddress);
     await tx.wait();

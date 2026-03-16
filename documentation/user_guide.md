@@ -6,6 +6,9 @@ ETHERSCAN_API_KEY
 
 ## Deployment
 
+### Community42 contract
+
+### Multisig contract
 
 ## Launch tests
 

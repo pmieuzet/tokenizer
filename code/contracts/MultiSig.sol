@@ -57,12 +57,17 @@ contract MultiSig is MultiSigErrors {
      */
     mapping(uint256 => mapping(address => bool)) public isSigned;
 
-    constructor(address[] memory signers) {
+    constructor(address[] memory signers, uint256 requiredSignatures) {
+        if (requiredSignatures > _requiredSignatures) {
+            _requiredSignatures = requiredSignatures;
+        }
+
         // Check if the number of signers provided is less than the required number of signatures.
         if (signers.length < _requiredSignatures) {
             revert NotEnoughOwners(signers.length, _requiredSignatures);
         }
 
+    
         // Initialize the _owners array and the _isOwner mapping based on the provided signers.
         _owners = signers;
         for (address owner: _owners) {
@@ -129,14 +134,14 @@ contract MultiSig is MultiSigErrors {
      * @param functionSignature The function signature is a string that represents the function to be called on the token contract, along with its parameters. For example, if you want to call the `transfer` function of an ERC20 token, the function signature would be "transfer(address,uint256)". This signature is used to encode the function call and its parameters into a format that can be executed by the Ethereum Virtual Machine (EVM).
      * @param tokenContract The address of the token contract that the transaction will interact with. This is the contract that implements the ERC20 token standard, and it is where the specified function will be called.
      * @param receiver The address of the recipient who will receive the tokens as a result of the transaction. This address will be passed as a parameter to the function call specified in the function signature.
-     * @param amount The amount of tokens to be transferred in the transaction. This value will also be passed as a parameter to the function call specified in the function signature. The amount should be specified in the smallest unit of the token (e.g., wei for Ether or the token's decimals for ERC20 tokens).
+     * @param amount The amount of tokens to be transferred in the transaction. This value will also be passed as a parameter to the function call specified in the function signature.
      */
     function submitTransaction(
         string memory functionSignature,
         address tokenContract,
         address receiver,
         uint256 amount
-    ) public {
+    ) external {
         // Check if the caller is an owner of the contract.
         if (!_isOwner[msg.sender]) {
             revert NotAnOwner(msg.sender);

@@ -1,5 +1,0 @@
-# Ownership
-
-## Governance
-
-## Multisg

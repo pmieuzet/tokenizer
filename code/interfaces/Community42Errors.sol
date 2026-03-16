@@ -30,4 +30,10 @@ interface Community42Errors {
      * @param required The amount of tokens required to participate in the event.
      */
     error InsufficientBalance(address user, uint256 balance, uint256 required);
+
+    /**
+     * @dev Indicates that a user is not a participant of the specified event.
+     * @param eventName The name of the event.
+     */
+    error InvalidMaxParticipants(bytes32 eventName);
 }

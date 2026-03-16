@@ -151,7 +151,6 @@ contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
 
     /**
      * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism.
-     * `value` is then deducted from the caller's allowance.
      *
      * Emits a {Transfer} event.
      *
@@ -340,22 +339,34 @@ contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
      *
      * Reverts with custom errors:
      * - `EventAlreadyExists` if an event with the same `eventKey` already exists.
+     * - `InvalidMaxParticipants` if the `maxParticipants` parameter is set to zero, which is not a valid value for the maximum number of participants.
      *
      * @param eventKey The unique identifier for the event to be created. It should be a non-empty string that distinguishes this event from others.
      * @param maxParticipants The maximum number of participants allowed to join the event. This should be a positive integer that limits the number of attendees for the event.
      * @param price The price in tokens that participants must pay to join the event.
      * This should be a non-negative integer representing the cost of attending the event in terms of the Community42 tokens.
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      */
     function createEvent(
         string memory eventKey,
         uint8 maxParticipants,
         uint256 price
-    ) external {
+    ) external returns (bool) {
         if (
             bytes(eventKey).length == 0 ||
             _events[eventKey].organizer != address(0)
         ) {
             revert EventAlreadyExists(bytes32(eventKey));
+        }
+
+        if (maxParticipants == 0) {
+            revert InvalidMaxParticipants(bytes32(eventKey));
+        }
+
+        // Cap the price at 100 tokens to prevent excessively high prices for attending events.
+        if (price > 100) {
+            price = 100;
         }
 
         // Create a new event by initializing the Event struct with the organizer's address, an empty list of participants, the specified maximum number of participants, and the price for attending the event. The event is stored in the _events mapping using the provided eventKey as the key.
@@ -365,6 +376,7 @@ contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
             maxParticipants: maxParticipants,
             price: price
         });
+        return true;
     }
 
     /**
@@ -376,8 +388,12 @@ contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
      * - `InsufficientBalance` if the user's balance is less than the price required to participate in the event.
      *
      * @param eventKey The unique identifier for the event that the user wants to participate in.
+     *
+     * @return A boolean value indicating whether the operation succeeded.
      */
-    function participateInEvent(string memory eventKey) external {
+    function participateInEvent(
+        string memory eventKey
+    ) external returns (bool) {
         Event storage eventInfo = _events[eventKey];
         if (eventInfo.organizer == address(0)) {
             revert EventDoesNotExist(bytes32(eventKey));
@@ -398,5 +414,6 @@ contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
 
         // The participant's address is added to the list of participants for the event.
         eventInfo.participants.push(msg.sender);
+        return true;
     }
 }
