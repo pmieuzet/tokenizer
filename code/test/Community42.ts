@@ -1,6 +1,7 @@
-import { network } from "hardhat";
+const { expect } = require("chai")
 
-const { ethers } = await network.connect();
+describe("Token contract", function() {
 
-async function main() {
-}
+    
+
+});
