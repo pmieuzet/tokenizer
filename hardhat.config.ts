@@ -1,9 +1,16 @@
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
+import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 
-require('dotenv').config();
+import * as dotenv from "dotenv";
+dotenv.config();
+
+const accounts = [
+  process.env.PRIVATE_KEY,
+  process.env.PRIVATE_KEY_MULTISIG,
+].filter((key): key is string => !!key);
 
 const config: HardhatUserConfig = {
+  plugins: [hardhatToolboxMochaEthersPlugin],
   solidity: "0.8.28",
   paths: {
     sources: "./code/contracts",
@@ -13,15 +20,13 @@ const config: HardhatUserConfig = {
   },
   networks: {
     sepolia: {
-      url: process.env.SEPOLIA_URL,
-      accounts: accounts: [
-        process.env.PRIVATE_KEY!, 
-        process.env.PRIVATE_KEY_MULTISIG ?? '', 
-      ]
+      type: 'http',
+      url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+      accounts: accounts.length > 0 ? accounts : []
     }
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API,
+    apiKey: process.env.ETHERSCAN_API_KEY,
     customChains: [
       {
         network: "sepolia",

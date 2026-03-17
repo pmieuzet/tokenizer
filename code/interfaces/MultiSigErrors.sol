@@ -35,4 +35,12 @@ interface MultiSigErrors {
      * @param owner The invalid owner address that was provided.
      */
     error InvalidOwner(address owner);
+
+    /**
+     * @dev Indicates that there are not enough required signatures to execute the transaction.
+     * @param transactionId The ID of the transaction that does not have enough signatures.
+     * @param signatureCount The number of signatures for the transaction.
+     * @param requiredSignatures The number of signatures required to execute a transaction.
+     */
+    error NotEnoughRequiredSignatures(uint256 transactionId, uint256 signatureCount, uint256 requiredSignatures);
 }

@@ -57,9 +57,9 @@ contract MultiSig is MultiSigErrors {
      */
     mapping(uint256 => mapping(address => bool)) public isSigned;
 
-    constructor(address[] memory signers, uint256 requiredSignatures) {
-        if (requiredSignatures > _requiredSignatures) {
-            _requiredSignatures = requiredSignatures;
+    constructor(address[] memory signers, uint256 requiredSignaturesNb) {
+        if (requiredSignaturesNb > _requiredSignatures) {
+            _requiredSignatures = requiredSignaturesNb;
         }
 
         // Check if the number of signers provided is less than the required number of signatures.
@@ -70,8 +70,9 @@ contract MultiSig is MultiSigErrors {
     
         // Initialize the _owners array and the _isOwner mapping based on the provided signers.
         _owners = signers;
-        for (address owner: _owners) {
-             if (owner == address(0)) {
+        for (uint8 i = 0; i < _owners.length; i++) {
+            address owner = _owners[i];
+            if (owner == address(0)) {
                 revert InvalidOwner(owner);
             }
             _isOwner[owner] = true;
@@ -184,7 +185,7 @@ contract MultiSig is MultiSigErrors {
         if (transaction.executed) {
             revert TransactionAlreadyExecuted(transactionId);
         } else if (transaction.signatureCount < _requiredSignatures) {
-            revert NotEnoughSignatures(
+            revert NotEnoughRequiredSignatures(
                 transactionId,
                 transaction.signatureCount,
                 _requiredSignatures
@@ -195,7 +196,7 @@ contract MultiSig is MultiSigErrors {
         transaction.executed = true;
 
         // Execute the transaction by making a low-level call to the specified address with the encoded data.
-        bool success = transaction.to.call{value: 0}(transaction.data);
+        (bool success, bytes memory data )= transaction.to.call{value: 0}(transaction.data);
 
         // Check if the transaction execution was successful.
         if (!success) {
@@ -203,6 +204,6 @@ contract MultiSig is MultiSigErrors {
         }
 
         // Emit an event to signal that the transaction has been executed, including the address it was sent to and the data payload.
-        emit TransactionExecuted(transaction.to, transaction.data);
+        emit TransactionExecuted(transaction.to, data);
     }
 }

@@ -214,7 +214,7 @@ contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
      * - `spender` cannot be the zero address.
      *
      * Reverts with custom errors:
-     * - `ERC20InvalidOwner` if `owner` is the zero address.
+     * - `ERC20InvalidApprover` if `owner` is the zero address.
      * - `ERC20InvalidSpender` if `spender` is the zero address.
      *
      * @param owner The address of the account owning tokens.
@@ -227,7 +227,7 @@ contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
         address spender
     ) public view override returns (uint256) {
         if (owner == address(0)) {
-            revert ERC20InvalidOwner(address(0));
+            revert ERC20InvalidApprover(address(0));
         } else if (spender == address(0)) {
             revert ERC20InvalidSpender(address(0));
         }
@@ -349,19 +349,19 @@ contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
      * @return A boolean value indicating whether the operation succeeded.
      */
     function createEvent(
-        string memory eventKey,
+        bytes32 eventKey,
         uint8 maxParticipants,
         uint256 price
     ) external returns (bool) {
         if (
-            bytes(eventKey).length == 0 ||
+            eventKey.length == 0 ||
             _events[eventKey].organizer != address(0)
         ) {
-            revert EventAlreadyExists(bytes32(eventKey));
+            revert EventAlreadyExists(eventKey);
         }
 
         if (maxParticipants == 0) {
-            revert InvalidMaxParticipants(bytes32(eventKey));
+            revert InvalidMaxParticipants(eventKey);
         }
 
         // Cap the price at 100 tokens to prevent excessively high prices for attending events.
@@ -370,7 +370,7 @@ contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
         }
 
         // Create a new event by initializing the Event struct with the organizer's address, an empty list of participants, the specified maximum number of participants, and the price for attending the event. The event is stored in the _events mapping using the provided eventKey as the key.
-        _events[bytes32(eventKey)] = Event({
+        _events[eventKey] = Event({
             organizer: msg.sender,
             participants: new address[](0),
             maxParticipants: maxParticipants,
@@ -392,13 +392,13 @@ contract Community42 is IERC20, IERC20Errors, Ownable, Community42Errors {
      * @return A boolean value indicating whether the operation succeeded.
      */
     function participateInEvent(
-        string memory eventKey
+        bytes32 eventKey
     ) external returns (bool) {
         Event storage eventInfo = _events[eventKey];
         if (eventInfo.organizer == address(0)) {
-            revert EventDoesNotExist(bytes32(eventKey));
+            revert EventDoesNotExist(eventKey);
         } else if (eventInfo.participants.length >= eventInfo.maxParticipants) {
-            revert EventFull(bytes32(eventKey));
+            revert EventFull(eventKey);
         } else if (_balances[msg.sender] < eventInfo.price) {
             revert InsufficientBalance(
                 msg.sender,
