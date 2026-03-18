@@ -9,7 +9,7 @@ async function main() {
 
     console.log("Community42 deployed to:", token.target);
 
-    fs.writeFileSync("TOKEN_ADDR=", JSON.stringify(token.target))
+    fs.appendFileSync(".env", `\nTOKEN_ADDR=${token.target}\n`);
 }
 
 main()
